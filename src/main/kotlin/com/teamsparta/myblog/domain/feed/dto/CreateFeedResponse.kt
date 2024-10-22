@@ -12,6 +12,8 @@ data class CreateFeedResponse(
     val deleted: Boolean,
     val category: String,
 ) {
+
+
     companion object {
         fun fromCreateFeed(feed: Feed): CreateFeedResponse {
             return CreateFeedResponse(

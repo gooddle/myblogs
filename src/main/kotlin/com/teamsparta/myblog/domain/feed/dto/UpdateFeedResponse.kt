@@ -15,6 +15,8 @@ data class UpdateFeedResponse(
     val category: String,
     val comments: List<UpdateCommentResponse>
 ) {
+
+
     companion object {
         fun fromUpdateFeed(feed: Feed): UpdateFeedResponse {
             return UpdateFeedResponse(
