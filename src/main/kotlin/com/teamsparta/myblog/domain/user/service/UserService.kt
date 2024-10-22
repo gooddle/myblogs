@@ -7,7 +7,7 @@ import com.teamsparta.myblog.domain.user.dto.UserResponse
 
 interface UserService {
 
-    fun loginUser(request : LoginRequest) : LoginResponse
+    fun loginUser(request: LoginRequest): LoginResponse
     fun signUpUser(request: SignUpRequest): UserResponse
 
 }

@@ -49,6 +49,3 @@ jobs:
 
       - name: Build project with Gradle
         run: ./gradlew build
-
-
-

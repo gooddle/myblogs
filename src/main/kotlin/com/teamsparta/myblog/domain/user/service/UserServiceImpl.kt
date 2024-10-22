@@ -1,7 +1,6 @@
 package com.teamsparta.myblog.domain.user.service
 
 
-import com.teamsparta.myblog.infra.RedisUtils
 import com.teamsparta.myblog.domain.exception.ModelNotFoundException
 import com.teamsparta.myblog.domain.user.dto.LoginRequest
 import com.teamsparta.myblog.domain.user.dto.LoginResponse
@@ -11,6 +10,7 @@ import com.teamsparta.myblog.domain.user.model.Role
 import com.teamsparta.myblog.domain.user.model.User
 import com.teamsparta.myblog.domain.user.model.toResponse
 import com.teamsparta.myblog.domain.user.repository.UserRepository
+import com.teamsparta.myblog.infra.RedisUtils
 import com.teamsparta.myblog.infra.security.jwt.JwtPlugin
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -23,7 +23,7 @@ class UserServiceImpl(
     private val jwtPlugin: JwtPlugin,
     private val redisUtils: RedisUtils,
 
-    ): UserService {
+    ) : UserService {
     override fun loginUser(request: LoginRequest): LoginResponse {
         val user = userRepository.findByEmail(request.email)
             ?: throw ModelNotFoundException("user")
@@ -42,7 +42,7 @@ class UserServiceImpl(
 
     @Transactional
     override fun signUpUser(request: SignUpRequest): UserResponse {
-        checkEmail(request.email,request.emailCode)
+        checkEmail(request.email, request.emailCode)
 
         if (userRepository.existsByEmail(request.email))
             throw IllegalStateException("이미 사용중인 이름입니다.")
@@ -64,13 +64,12 @@ class UserServiceImpl(
     }
 
 
-   private fun checkEmail(email:String,codeNumber: String):Boolean {
+    private fun checkEmail(email: String, codeNumber: String): Boolean {
         val storedCode = redisUtils.getData(email)
-        if(storedCode.isNullOrEmpty()||storedCode != codeNumber)throw IllegalStateException("인증번호 혹은 동일한 이메일을 사용해주세요")
+        if (storedCode.isNullOrEmpty() || storedCode != codeNumber) throw IllegalStateException("인증번호 혹은 동일한 이메일을 사용해주세요")
 
         return true
     }
-
 
 
 }
