@@ -1,14 +1,18 @@
 package com.teamsparta.myblog.domain.feed.controller
 
-import com.teamsparta.myblog.domain.feed.dto.*
+import com.teamsparta.myblog.domain.feed.dto.CreateFeedResponse
+import com.teamsparta.myblog.domain.feed.dto.FeedRequest
+import com.teamsparta.myblog.domain.feed.dto.PageFeedResponse
+import com.teamsparta.myblog.domain.feed.dto.UpdateFeedResponse
 import com.teamsparta.myblog.domain.feed.model.FeedCategory
 import com.teamsparta.myblog.domain.feed.service.FeedService
+import com.teamsparta.myblog.infra.security.UserPrincipal
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.Authentication
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RequestMapping("api/v1/feeds")
@@ -16,7 +20,7 @@ import org.springframework.web.bind.annotation.*
 class FeedController(
     private var feedService: FeedService,
 
-) {
+    ) {
 
     @GetMapping
     fun getFeedList(
@@ -41,36 +45,37 @@ class FeedController(
     fun createFeed(
         @RequestBody request: FeedRequest,
         category: FeedCategory,
-        authentication: Authentication
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
     ): ResponseEntity<CreateFeedResponse> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(feedService.createFeed(request,category,authentication))
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(feedService.createFeed(request, category, userPrincipal.id))
     }
-
 
     @PutMapping("/{feedId}")
     fun updateFeedById(
         @PathVariable feedId: Long,
         @RequestBody request: FeedRequest,
         category: FeedCategory,
-        authentication: Authentication
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
     ): ResponseEntity<UpdateFeedResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(feedService.updateFeed(feedId, request,category, authentication))
+        return ResponseEntity.status(HttpStatus.OK)
+            .body(feedService.updateFeed(feedId, request, category, userPrincipal.id))
     }
 
     @DeleteMapping("/{feedId}")
     fun deleteFeedById(
         @PathVariable feedId: Long,
-        authentication: Authentication
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
     ): ResponseEntity<Unit> {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(feedService.deleteFeed(feedId, authentication))
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(feedService.deleteFeed(feedId, userPrincipal.id))
 
     }
 
     @PutMapping("/recover/{feedId}")
     fun recoverFeed(
         @PathVariable feedId: Long,
-        authentication: Authentication
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
     ): ResponseEntity<UpdateFeedResponse> {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(feedService.recoverFeed(feedId, authentication))
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(feedService.recoverFeed(feedId, userPrincipal.id))
     }
 }
