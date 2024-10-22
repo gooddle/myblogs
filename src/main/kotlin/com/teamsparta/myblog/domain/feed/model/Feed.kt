@@ -45,6 +45,7 @@ class Feed(
 
     ) {
 
+
     fun createFeedRequest(request: FeedRequest) {
         title = request.title
         content = request.content

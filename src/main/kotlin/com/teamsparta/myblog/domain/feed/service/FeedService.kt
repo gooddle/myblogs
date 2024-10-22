@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable
 
 interface FeedService {
 
+
     fun getFeedList(
         pageable: Pageable,
         title: String?,
