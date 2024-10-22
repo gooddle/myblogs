@@ -35,7 +35,6 @@ class Comment(
 
     ) {
 
-
     fun updateCommentRequest(request: CommentRequest) {
         title = request.title
         content = request.content
