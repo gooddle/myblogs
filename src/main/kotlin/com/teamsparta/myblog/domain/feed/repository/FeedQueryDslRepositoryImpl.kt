@@ -10,6 +10,7 @@ import com.teamsparta.myblog.infra.querydsl.QueryDslSupport
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 
@@ -57,6 +58,7 @@ class FeedQueryDslRepositoryImpl(
 
     }
 
+    @Transactional
     override fun findAndDeleteByDeletedAtBefore(olderFeeds: LocalDateTime): List<Feed> {
         val whereClause = BooleanBuilder()
         whereClause.and(feed.deletedAt.before(olderFeeds))
@@ -66,7 +68,7 @@ class FeedQueryDslRepositoryImpl(
             .selectFrom(feed)
             .where(whereClause)
             .fetch()
-        
+
 
         if (feedsToDelete.isNotEmpty()) {
             queryFactory
