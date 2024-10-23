@@ -2,6 +2,7 @@ package com.teamsparta.myblog.domain.feed.repository
 
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.dsl.BooleanExpression
+import com.teamsparta.myblog.domain.comment.model.QComment
 import com.teamsparta.myblog.domain.feed.model.Feed
 import com.teamsparta.myblog.domain.feed.model.FeedCategory
 import com.teamsparta.myblog.domain.feed.model.QFeed
@@ -17,6 +18,7 @@ class FeedQueryDslRepositoryImpl(
 
 
     private val feed: QFeed = QFeed.feed
+    private val comment: QComment = QComment.comment
 
 
     override fun findByDeletedFalse(
@@ -64,8 +66,15 @@ class FeedQueryDslRepositoryImpl(
             .selectFrom(feed)
             .where(whereClause)
             .fetch()
+        
 
         if (feedsToDelete.isNotEmpty()) {
+            queryFactory
+                .delete(comment)
+                .where(comment.feed.`in`(feedsToDelete))
+                .execute()
+
+
             queryFactory
                 .delete(feed)
                 .where(feed.`in`(feedsToDelete))
