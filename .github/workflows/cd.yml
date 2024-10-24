@@ -46,6 +46,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Copy docker-compose.yml to server
+        run: scp -i ${{ secrets.SSH_KEY }} -o StrictHostKeyChecking=no docker-compose.yml ubuntu@${{ secrets.SSH_HOST }}:/home/ubuntu
+
       - name: Deploy using Docker Compose
         uses: appleboy/ssh-action@v0.1.6
         with:
