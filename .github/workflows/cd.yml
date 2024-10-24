@@ -55,7 +55,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd myblogs
+                       
             # 환경 변수 설정
             export DB_URL=${{ secrets.DB_URL }}
             export DB_USERNAME=${{ secrets.DB_USERNAME }}
