@@ -47,12 +47,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-
       - name: Deploy using Docker Compose
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -60,8 +54,6 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # 홈 디렉토리로 이동
-            cd /home/ubuntu
             # 환경 변수 설정
             export DB_URL=${{ secrets.DB_URL }}
             export DB_USERNAME=${{ secrets.DB_USERNAME }}
@@ -75,6 +67,10 @@ jobs:
             export AUTH_JWT_SECRET=${{ secrets.AUTH_JWT_SECRET }}
             export DATA_REDIS_HOST=${{ secrets.DATA_REDIS_HOST }}
             export DATA_REDIS_PORT=${{ secrets.DATA_REDIS_PORT }}
+            
+            # Docker Hub에 로그인
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            
             # 기존 컨테이너 중지 및 삭제
             docker-compose down || true
             # 최신 이미지 Pull
