@@ -2,6 +2,7 @@ package com.teamsparta.myblog.domain.feed.repository
 
 import com.querydsl.core.BooleanBuilder
 import com.querydsl.core.types.dsl.BooleanExpression
+import com.teamsparta.myblog.domain.comment.model.QComment
 import com.teamsparta.myblog.domain.feed.model.Feed
 import com.teamsparta.myblog.domain.feed.model.FeedCategory
 import com.teamsparta.myblog.domain.feed.model.QFeed
@@ -9,24 +10,29 @@ import com.teamsparta.myblog.infra.querydsl.QueryDslSupport
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 
-
-
-class  FeedQueryDslRepositoryImpl(
+class FeedQueryDslRepositoryImpl(
 ) : FeedQueryDslRepository, QueryDslSupport() {
 
 
-
     private val feed: QFeed = QFeed.feed
+    private val comment: QComment = QComment.comment
 
 
-    override fun findByDeletedFalse(pageable: Pageable,title : String?,firstDay: Long?,secondDay: Long?,category: FeedCategory?): Page<Feed> {
+    override fun findByDeletedFalse(
+        pageable: Pageable,
+        title: String?,
+        firstDay: Long?,
+        secondDay: Long?,
+        category: FeedCategory?
+    ): Page<Feed> {
         val whereClause = BooleanBuilder()
         whereClause.and(feed.deleted.eq(false))
             .and(title?.let { titleLike(title) })
-            .and(firstDay?.let { widthInDays(firstDay,secondDay!!) })
+            .and(firstDay?.let { widthInDays(firstDay, secondDay!!) })
             .and(category?.let { searchByCategory(category) })
 
         val totalCount = queryFactory.select(feed.count()).from(feed).where(whereClause).fetchOne() ?: 0L
@@ -46,12 +52,13 @@ class  FeedQueryDslRepositoryImpl(
             }
         }
 
-            val contents = query.fetch()
+        val contents = query.fetch()
 
-            return PageImpl(contents, pageable, totalCount)
+        return PageImpl(contents, pageable, totalCount)
 
     }
 
+    @Transactional
     override fun findAndDeleteByDeletedAtBefore(olderFeeds: LocalDateTime): List<Feed> {
         val whereClause = BooleanBuilder()
         whereClause.and(feed.deletedAt.before(olderFeeds))
@@ -62,7 +69,14 @@ class  FeedQueryDslRepositoryImpl(
             .where(whereClause)
             .fetch()
 
-        if (feedsToDelete.isNotEmpty()){
+
+        if (feedsToDelete.isNotEmpty()) {
+            queryFactory
+                .delete(comment)
+                .where(comment.feed.`in`(feedsToDelete))
+                .execute()
+
+
             queryFactory
                 .delete(feed)
                 .where(feed.`in`(feedsToDelete))
@@ -85,15 +99,15 @@ class  FeedQueryDslRepositoryImpl(
 
     }
 
-    private fun titleLike(title:String): BooleanExpression {
+    private fun titleLike(title: String): BooleanExpression {
         return feed.title.contains(title)
     }
 
-    private fun widthInDays(firstDay: Long, secondDay:Long): BooleanExpression {
-      return feed.createdAt.between(LocalDateTime.now().minusDays(firstDay), LocalDateTime.now().minusDays(secondDay))
+    private fun widthInDays(firstDay: Long, secondDay: Long): BooleanExpression {
+        return feed.createdAt.between(LocalDateTime.now().minusDays(firstDay), LocalDateTime.now().minusDays(secondDay))
     }
 
-    private fun searchByCategory(category:FeedCategory):BooleanExpression{
+    private fun searchByCategory(category: FeedCategory): BooleanExpression {
         return feed.feedCategory.eq(category)
     }
 }
