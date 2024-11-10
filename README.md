@@ -1,5 +1,9 @@
 # 1. blog 어플리케이션 
 
+### 서비스 아키텍처
+
+![myblogs 배포 아키텍처 pptx - PowerPoint 2024-11-10 오후 6_24_32](https://github.com/user-attachments/assets/4ded774b-89b0-4199-8915-78b36c58d0a7)
+
 ### 회원 가입 기능
 - 이메일 인증 기능
 - 비밀번호는 아이디에 포함 된 내용 사용 불가
